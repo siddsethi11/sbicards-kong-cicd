@@ -1,0 +1,76 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-04-30T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v12",
+  "resources": [
+    {
+      "_id": "wrk_sbi_cards_001",
+      "_type": "workspace",
+      "parentId": null,
+      "modified": 1709590000000,
+      "created": 1709590000000,
+      "name": "SBI Cards Rewards Demo",
+      "description": "",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_sbi_base",
+      "_type": "environment",
+      "parentId": "wrk_sbi_cards_001",
+      "modified": 1709590000000,
+      "created": 1709590000000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "https://api.sbicard-demo.example.com"
+      }
+    },
+    {
+      "_id": "env_sbi_kong_ee",
+      "_type": "environment",
+      "parentId": "env_sbi_base",
+      "modified": 1709590000000,
+      "created": 1709590000000,
+      "name": "Kong Enterprise deployment",
+      "data": {
+        "base_url": "http://localhost:8000"
+      }
+    },
+    {
+      "_id": "req_sbi_rewards_1",
+      "_type": "request",
+      "parentId": "wrk_sbi_cards_001",
+      "modified": 1709590000000,
+      "created": 1709590000000,
+      "url": "{{ _.base_url }}/cards/4242/rewards",
+      "name": "Get Reward Points (Mock)",
+      "description": "",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {}
+    },
+    {
+      "_id": "uts_sbi_suite",
+      "_type": "unit_test_suite",
+      "parentId": "wrk_sbi_cards_001",
+      "modified": 1709590000000,
+      "created": 1709590000000,
+      "name": "SBI Cards Rewards Mock Tests"
+    },
+    {
+      "_id": "ut_sbi_rewards_1",
+      "_type": "unit_test",
+      "parentId": "uts_sbi_suite",
+      "modified": 1709590000000,
+      "created": 1709590000000,
+      "name": "Check Status 200 and reward points fields",
+      "requestId": "req_sbi_rewards_1",
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst body = JSON.parse(response1.data);\nexpect(body.cardNumber).to.equal(\"4242\");\nexpect(body.rewardPoints).to.be.a(\"number\");\nexpect(body.tier).to.be.a(\"string\");"
+    }
+  ]
+}

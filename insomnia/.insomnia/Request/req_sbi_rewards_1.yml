@@ -1,0 +1,13 @@
+_id: req_sbi_rewards_1
+type: Request
+parentId: wrk_sbi_cards_001
+modified: 1709590000000
+created: 1709590000000
+url: "{{ _.base_url }}/cards/4242/rewards"
+name: Get Reward Points (Mock)
+description: ""
+method: GET
+body: {}
+parameters: []
+headers: []
+authentication: {}

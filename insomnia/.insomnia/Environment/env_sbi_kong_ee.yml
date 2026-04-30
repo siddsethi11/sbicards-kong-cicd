@@ -1,0 +1,8 @@
+_id: env_sbi_kong_ee
+type: Environment
+parentId: env_sbi_base
+modified: 1709590000000
+created: 1709590000000
+name: Kong Enterprise deployment
+data:
+  base_url: http://localhost:8000

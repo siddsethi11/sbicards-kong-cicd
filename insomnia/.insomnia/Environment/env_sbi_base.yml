@@ -1,0 +1,8 @@
+_id: env_sbi_base
+type: Environment
+parentId: wrk_sbi_cards_001
+modified: 1709590000000
+created: 1709590000000
+name: Base Environment
+data:
+  base_url: https://api.sbicard-demo.example.com

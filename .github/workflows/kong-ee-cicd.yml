@@ -1,0 +1,103 @@
+name: SBI Cards – Kong Enterprise CI/CD
+# ─────────────────────────────────────────────────────────────────────────────
+# Step 1 – Lint OAS with inso lint spec
+# Step 2 – Convert OAS → Kong config with deck file openapi2kong
+# Step 3 – Inject mocking plugin → sandbox.yaml, deploy via deck gateway apply
+#           (targets Kong Enterprise Admin API :8001, not Konnect)
+# Step 4 – Upload OAS to Dev Portal /files + link via /document_objects
+# Step 5 – Run post-deploy API tests via inso run test
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "openapi/**"
+      - "insomnia/**"
+      - "kong/mock-plugin.yaml"
+      - ".github/workflows/kong-ee-cicd.yml"
+  push:
+    branches: [main]
+    paths:
+      - "openapi/**"
+      - "insomnia/**"
+      - "kong/mock-plugin.yaml"
+      - ".github/workflows/kong-ee-cicd.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Kong Enterprise Admin API – override via GitHub Variables if needed
+  KONG_ADMIN_URL: ${{ vars.KONG_ADMIN_URL || 'http://localhost:8001' }}
+  # Workspace used for both deck and portal file publishing
+  KONG_WORKSPACE: ${{ vars.KONG_WORKSPACE || 'default' }}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 1  –  Step 1: Lint OpenAPI Specification
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+  lint-openapi:
+    name: "Step 1: Lint OAS with inso"
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Inso CLI 12.4.0
+        run: |
+          mkdir -p /tmp/inso-extract
+          curl -sSL "https://github.com/Kong/insomnia/releases/download/core@12.4.0/inso-linux-x64-12.4.0.tar.xz" \
+            | tar -xJ -C /tmp/inso-extract/
+          find /tmp/inso-extract -name 'inso' -type f -exec install -m 0755 {} /usr/local/bin/inso \;
+          inso --version
+
+      - name: Run lint step via demo script
+        run: ./test-local.sh --lint-only
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 2+3  –  Convert OAS → Kong config, inject mocking plugin, deploy
+# ─────────────────────────────────────────────────────────────────────────────
+  deploy-kong-ee:
+    name: "Steps 2-4: Convert, Mock, Deploy, Publish to Dev Portal"
+    runs-on: self-hosted
+    needs: lint-openapi
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify decK CLI is available on runner
+        run: deck version
+
+      - name: Run deploy steps via demo script
+        env:
+          KONG_ADMIN_URL: ${{ env.KONG_ADMIN_URL }}
+          KONG_WORKSPACE: ${{ env.KONG_WORKSPACE }}
+          # Set KONG_ADMIN_TOKEN only if RBAC is enabled on your Kong Enterprise instance
+          KONG_ADMIN_TOKEN: ${{ secrets.KONG_ADMIN_TOKEN }}
+        run: ./test-local.sh --deploy-only
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 3  –  Step 4: Post-deploy API Tests via inso run test
+# ─────────────────────────────────────────────────────────────────────────────
+  test-with-inso:
+    name: "Step 5: API tests with inso run test"
+    runs-on: self-hosted
+    needs: deploy-kong-ee
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify inso CLI is available
+        run: inso --version
+
+      - name: Run Insomnia tests via demo script
+        env:
+          KONG_PROXY_URL: ${{ secrets.KONG_PROXY_URL || vars.KONG_PROXY_URL }}
+        run: ./test-local.sh --test-only

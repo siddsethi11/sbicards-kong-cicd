@@ -1,0 +1,95 @@
+_format_version: "1.0"
+
+add-plugins:
+  - selectors:
+      - "$..services[*]"
+    overwrite: true
+    plugins:
+      - name: mocking
+        enabled: true
+        config:
+          include_base_path: false
+          random_examples: false
+          api_specification: |
+            openapi: 3.0.0
+            info:
+              title: SBI Cards Reward Points API
+              version: 1.0.0
+              description: API to query and redeem reward points for SBI Cards credit card holders.
+              contact:
+                name: SBI Cards API Support
+                email: api-support@sbicard-demoexample.com
+            servers:
+              - url: http://localhost:8000
+                description: Local Kong Enterprise proxy
+            x-kong-route-defaults:
+              protocols:
+                - http
+                - https
+            tags:
+              - name: Rewards
+                description: Reward points operations
+            paths:
+              /cards/{cardNumber}/rewards:
+                get:
+                  summary: Get Reward Points Balance
+                  operationId: getRewardPointsByCard
+                  tags:
+                    - Rewards
+                  description: Returns the current reward points balance, tier status, and nearest expiry for a given SBI Cards credit card.
+                  parameters:
+                    - name: cardNumber
+                      in: path
+                      required: true
+                      description: Last 4 digits of the SBI credit card number.
+                      schema:
+                        type: string
+                        example: "4242"
+                  responses:
+                    '200':
+                      description: Successful response with reward points details
+                      content:
+                        application/json:
+                          schema:
+                            type: object
+                            properties:
+                              cardNumber:
+                                type: string
+                                example: "4242"
+                              cardHolder:
+                                type: string
+                                example: "Rajesh Kumar"
+                              rewardPoints:
+                                type: integer
+                                example: 12500
+                              tier:
+                                type: string
+                                enum: [Silver, Gold, Platinum, Elite]
+                                example: "Gold"
+                              pointsExpiryDate:
+                                type: string
+                                format: date
+                                example: "2024-12-31"
+                              equivalentCashValue:
+                                type: number
+                                example: 125.00
+                    '404':
+                      description: Card not found
+                      content:
+                        application/json:
+                          schema:
+                            type: object
+                            properties:
+                              error:
+                                type: string
+                                example: "Card number not found"
+                    '401':
+                      description: Unauthorized
+                      content:
+                        application/json:
+                          schema:
+                            type: object
+                            properties:
+                              error:
+                                type: string
+                                example: "Invalid or missing API key"

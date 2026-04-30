@@ -1,0 +1,14 @@
+_id: ut_sbi_rewards_1
+type: UnitTest
+parentId: uts_sbi_suite
+modified: 1709590000000
+created: 1709590000000
+name: Check Status 200 and reward points fields
+requestId: req_sbi_rewards_1
+code: |-
+  const response1 = await insomnia.send();
+  expect(response1.status).to.equal(200);
+  const body = JSON.parse(response1.data);
+  expect(body.cardNumber).to.equal("4242");
+  expect(body.rewardPoints).to.be.a("number");
+  expect(body.tier).to.be.a("string");
