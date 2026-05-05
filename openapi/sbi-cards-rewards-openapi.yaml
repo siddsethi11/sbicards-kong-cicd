@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: SBI Cards Reward Points API
-  version: 1.0.0
+  version: 1.0.1
   description: API to query and redeem reward points for SBI Cards credit card holders.
   contact:
     name: SBI Cards API Support
