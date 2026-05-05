@@ -162,6 +162,24 @@ else
     done
   fi
 
+  step "Delete document_objects attached to service"
+  SERVICE_DOCS_JSON=$(curl -sS \
+    "${CURL_AUTH[@]+"${CURL_AUTH[@]}"}" \
+    "${KONG_ADMIN_URL}/${KONG_WORKSPACE}/services/${SERVICE_ID}/document_objects") || SERVICE_DOCS_JSON='{"data":[]}'
+  SERVICE_DOC_IDS=()
+  while IFS= read -r did; do
+    [[ -n "$did" ]] && SERVICE_DOC_IDS+=("$did")
+  done < <(jq -r '.data[]?.id' <<< "$SERVICE_DOCS_JSON")
+
+  if [[ ${#SERVICE_DOC_IDS[@]} -eq 0 ]]; then
+    warn "No document_objects found under service ${SERVICE_ID}"
+  else
+    for did in "${SERVICE_DOC_IDS[@]}"; do
+      api DELETE "document_objects/${did}" || fail "Failed deleting service document_object ${did}"
+      ok "Deleted service document_object ${did}"
+    done
+  fi
+
   step "Delete service (cascades routes/plugins on service)"
   api DELETE "services/${SERVICE_ID}" || fail "Failed deleting service"
   ok "Service delete request completed"
