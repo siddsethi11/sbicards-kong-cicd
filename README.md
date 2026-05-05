@@ -56,7 +56,7 @@ The scenario: SBI Cards exposes a **Reward Points API**. The API is mocked on Ko
 | `KONG_ADMIN_URL` | `http://localhost:8001` | Kong Admin API base URL |
 | `KONG_WORKSPACE` | `default` | Kong workspace name |
 | `KONG_ADMIN_TOKEN` | _(unset)_ | RBAC token — only needed if RBAC is enabled |
-| `KONG_PROXY_URL` | _(required for tests)_ | Kong proxy URL, e.g. `http://localhost:8000` |
+| `KONG_PROXY_URL` | _(required for tests)_ | Kong proxy URL, e.g. `http://<kong_proxy_url>` |
 
 ---
 
@@ -69,7 +69,7 @@ cd sbicards-kong-cicd
 
 # Set environment (adjust to your Kong instance)
 export KONG_ADMIN_URL="http://localhost:8001"
-export KONG_PROXY_URL="http://localhost:8000"
+export KONG_PROXY_URL="http://<kong_proxy_url>"
 # export KONG_ADMIN_TOKEN="<your-rbac-token>"   # only if RBAC is on
 
 # Full 5-step run
@@ -127,7 +127,7 @@ Once deployed, hit the mock endpoint directly:
 
 ```bash
 # Returns mocked reward points response (no backend required)
-curl http://localhost:8000/cards/4242/rewards
+curl "${KONG_PROXY_URL}/cards/4242/rewards"
 ```
 
 Expected response:

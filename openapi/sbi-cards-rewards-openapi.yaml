@@ -7,8 +7,12 @@ info:
     name: SBI Cards API Support
     email: api-support@sbicard.com
 servers:
-  - url: http://localhost:8000
-    description: Local Kong Enterprise proxy
+  - url: "{kong_proxy_url}"
+    description: Kong Enterprise proxy
+    variables:
+      kong_proxy_url:
+        default: http://localhost:8000
+        description: Base URL of the Kong proxy
 x-kong-route-defaults:
   protocols:
     - http
