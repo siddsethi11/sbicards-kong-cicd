@@ -87,12 +87,12 @@ deploy_step() {
   ok "kong/kong-generated.yaml written"
   head -20 kong/kong-generated.yaml
 
-  step "STEP 3/5 – deck file add-plugins (mocking)"
+  step "STEP 3/5 – deck file add-plugins (mocking + cors)"
   deck file add-plugins \
     --state kong/kong-generated.yaml \
     --overwrite \
     --output-file kong/sandbox.yaml \
-    kong/mock-plugin.yaml
+    kong/plugins.yaml
   ok "kong/sandbox.yaml written"
 
   step "STEP 3/5 – deck file validate"

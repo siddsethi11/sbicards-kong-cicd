@@ -5,6 +5,40 @@ add-plugins:
       - "$..services[*]"
     overwrite: true
     plugins:
+      - name: cors
+        enabled: true
+        protocols:
+          - grpc
+          - grpcs
+          - http
+          - https
+        config:
+          private_network: false
+          max_age: 3600
+          origins:
+            - http://localhost:8003
+            - http://127.0.0.1:8003
+          preflight_continue: false
+          methods:
+            - GET
+            - HEAD
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          exposed_headers:
+            - X-Request-Id
+            - X-API-KEY
+            - apikey
+          credentials: false
+          allow_origin_absent: true
+          headers:
+            - Accept
+            - Content-Type
+            - Authorization
+            - X-API-KEY
+            - apikey
       - name: mocking
         enabled: true
         config:
